@@ -27,10 +27,10 @@ Module Make(Import M: Memory.T).
 
  Fixpoint dExp A (e: Exp A): term A unit :=
   match e with
-    | const Z n     => constant n
+    | @const Z n     => constant n
     | loc x         => lookup x
-    | apply _ _ f x => tpure f o (dExp x)
-    | pExp _ _  x y => pair (dExp x) (dExp y)
+    | @apply _ _ f x => tpure f o (dExp x)
+    | @pExp _ _  x y => pair (dExp x) (dExp y)
   end.
 
  Inductive Cmd  : Type :=

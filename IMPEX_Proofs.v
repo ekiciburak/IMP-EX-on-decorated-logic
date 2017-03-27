@@ -22,12 +22,12 @@ Module Make(Import M: Memory.T).
 
  Lemma lemma1: forall (b: bool) (f g: Cmd), 
       (EPURE rw (dCmd f)) -> (EPURE rw (dCmd g)) -> 
-      {{IFB const b 
-          THEN (IFB const b THEN f ELSE g ENDIF) 
+      {{IFB const bool b 
+          THEN (IFB const bool b THEN f ELSE g ENDIF) 
         ELSE g 
         ENDIF}}
       ===
-      {{IFB const b 
+      {{IFB const bool b 
           THEN f 
         ELSE g 
         ENDIF}}.
@@ -38,12 +38,12 @@ Module Make(Import M: Memory.T).
 
 
  Lemma lemma2: forall (x: Loc),
-	{{x ::= (const 2) ;;
-	  WHILE ((loc x) << (const 11))
-	    DO (x ::= ((loc x) +++ (const 4)))
+	{{x ::= (const Z 2) ;;
+	  WHILE ((var x) << (const Z 11))
+	    DO (x ::= ((var x) +++ (const Z 4)))
 	  ENDWHILE}}
 	===
-	{{x ::= (const 14)}}.
+	{{x ::= (const Z 14)}}.
  Proof.
     intro x. simpl.
       do 3 setoid_rewrite <- assoc at 1. rewrite commutation_lookup_constant_update.
@@ -103,18 +103,18 @@ Module Make(Import M: Memory.T).
  Qed.
 
  Lemma lemma3: forall (x y: Loc), forall (e: EName), x <> y ->
-       {{x ::= (const 1) ;;
-         (y ::= (const 20)) ;;
-         TRY(WHILE (const true)
-               DO(IFB ((loc x) <<= (const 0))
+       {{x ::= (const Z 1) ;;
+         (y ::= (const Z 20)) ;;
+         TRY(WHILE (const bool true)
+               DO(IFB ((var x) <<= (const Z 0))
                     THEN (THROW e)
-                  ELSE(x ::= ((loc x) +++ (const (-1))))
+                  ELSE(x ::= ((var x) +++ (const Z (-1))))
                   ENDIF)
               ENDWHILE)
-         CATCH e => (y ::= (const 7))}}
+         CATCH e => (y ::= (const Z 7))}}
        ===
-       {{x ::= (const 0) ;;
-         (y ::= (const 7))}}.
+       {{x ::= (const Z 0) ;;
+         (y ::= (const Z 7))}}.
  Proof.
     intros. simpl. unfold try_catch.
       apply (@swtoss _ _ rw). apply is_comp. apply is_ro_rw, is_pure_ro, is_downcast.

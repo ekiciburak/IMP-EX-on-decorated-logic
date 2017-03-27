@@ -29,7 +29,7 @@ Module Make(Import M: Memory.T).
       | (x, y) => x + y
     end.
 
- Definition subs (p: Z * Z) := 
+ Definition subt (p: Z * Z) := 
     match p with
       | (x, y) => x - y
     end.
@@ -92,7 +92,7 @@ Module Make(Import M: Memory.T).
                     end
     end.
 
- Definition ve (p: bool * bool): bool := 
+ Definition andB (p: bool * bool): bool := 
     match p with
       | (x, y) => match (x && y) with 
                     | false => false
@@ -100,13 +100,15 @@ Module Make(Import M: Memory.T).
                   end
     end.
 
- Definition yada (p: bool * bool): bool := 
+ Definition orB (p: bool * bool): bool := 
     match p with
       | (x, y) => match (x || y) with 
                     | false => false
                     | true  => true
                   end
     end.
+
+ Definition notB (b: bool): bool := if b then false else true.
 
  Definition bool_to_prop (b: bool): Prop :=
      match b with

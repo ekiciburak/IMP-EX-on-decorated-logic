@@ -48,33 +48,33 @@ Module Make(Import M: Memory.T).
 
 (**COPRODUCTS**)
 
- Definition lcoprod {X1 Y1 X2 Y2} (f: term X1 X2) (g: term Y1 Y2) := copair (coproj1 o f) (coproj2 o g).
- Definition rcoprod {X1 Y1 X2 Y2} (f: term X1 X2) (g: term Y1 Y2) := rcopair (coproj1 o f) (coproj2 o g).
+ Definition lcoprod {X1 Y1 X2 Y2} (f: term X1 X2) (g: term Y1 Y2) := copair (in1 o f) (in2 o g).
+ Definition rcoprod {X1 Y1 X2 Y2} (f: term X1 X2) (g: term Y1 Y2) := rcopair (in1 o f) (in2 o g).
 
  Lemma sw_lcoprod_eq: forall A1 A2 B1 B2 d (f: term B1 A1) (g: term A2 B2),
- PPG d f -> CTC d g -> (lcoprod f g) o coproj1 ==~ coproj1 o f.
+ PPG d f -> CTC d g -> (lcoprod f g) o in1 ==~ in1 o f.
  Proof. intros A1 A2 B1 B2 d f g H1 H2. apply (@sw_lcopair_eq _ _ _ d); induction d; edecorate. Qed.
  
  Lemma ss_lcoprod_eq: forall A1 A2 B1 B2 d (f: term B1 A1) (g: term A2 B2),
- PPG d f -> CTC d g -> (lcoprod f g) o coproj2 === coproj2 o g.
+ PPG d f -> CTC d g -> (lcoprod f g) o in2 === in2 o g.
  Proof. intros A1 A2 B1 B2 d f g H1 H2. apply (@ss_lcopair_eq _ _ _ d); induction d; edecorate. Qed.
 
  Lemma ss_rcoprod_eq: forall A1 A2 B1 B2 d (f: term B1 A1) (g: term A2 B2),
- PPG d g -> CTC d f -> (rcoprod f g) o coproj1 === coproj1 o f.
+ PPG d g -> CTC d f -> (rcoprod f g) o in1 === in1 o f.
  Proof. intros A1 A2 B1 B2 d f g H1 H2. apply (@ss_rcopair_eq _ _ _ d); induction d; edecorate. Qed.
 
  Lemma sw_rcoprod_eq: forall A1 A2 B1 B2 d (f: term B1 A1) (g: term A2 B2),
- PPG d g -> CTC d f -> (rcoprod f g) o coproj2 ==~ coproj2 o g.
+ PPG d g -> CTC d f -> (rcoprod f g) o in2 ==~ in2 o g.
  Proof. intros A1 A2 B1 B2 d f g H1 H2. apply (@sw_rcopair_eq _ _ _ d); induction d; edecorate. Qed.
 
 (*coproduct unicity*)
 
  Lemma ss_lcoprod_u: forall A1 A2 B1 B2 (f g: term (A1 + A2) (B1 + B2)),
- (f o coproj1 ==~ g o coproj1) -> (f o coproj2 === g o coproj2) -> f === g.
+ (f o in1 ==~ g o in1) -> (f o in2 === g o in2) -> f === g.
  Proof. intros A1 A2 B1 B2 f g H1 H2. apply ss_lcopair_u;[exact H1| exact H2]. Qed.
 
  Lemma ss_rcoprod_u: forall A1 A2 B1 B2 (f g: term (A1 + A2) (B1 + B2)),
- (f o coproj1 === g o coproj1) -> (f o coproj2 ==~ g o coproj2) -> f === g.
+ (f o in1 === g o in1) -> (f o in2 ==~ g o in2) -> f === g.
  Proof. intros A1 A2 B1 B2 f g H1 H2. apply ss_rcopair_u;[exact H1| exact H2]. Qed.
 
 End Make.

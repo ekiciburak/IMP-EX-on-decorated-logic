@@ -25,31 +25,35 @@ Module Make(Import M: Memory.T).
     | const : forall A, A -> Exp A
     | var   : Loc -> Exp Z
     | plus  : Exp Z -> Exp Z -> Exp Z
-    | mult  : Exp Z -> Exp Z -> Exp Z
     | subtr : Exp Z -> Exp Z -> Exp Z
+    | mult  : Exp Z -> Exp Z -> Exp Z
+    | ttrue : Exp bool
+    | ffalse: Exp bool
+    | eq    : Exp Z -> Exp Z -> Exp bool
+    | neq   : Exp Z -> Exp Z -> Exp bool
     | gt    : Exp Z -> Exp Z -> Exp bool
     | lt    : Exp Z -> Exp Z -> Exp bool
     | ge    : Exp Z -> Exp Z -> Exp bool
     | le    : Exp Z -> Exp Z -> Exp bool
-    | eq    : Exp Z -> Exp Z -> Exp bool
-    | neq   : Exp Z -> Exp Z -> Exp bool
     | and   : Exp bool -> Exp bool -> Exp bool
     | or    : Exp bool -> Exp bool -> Exp bool
     | neg   : Exp bool -> Exp bool.
 
  Fixpoint dExp A (e: Exp A): term A unit :=
   match e with
-    | const Z n       => constant n
+    | const Z n     => constant n
     | var x         => lookup x
     | plus a1 a2    => tpure add o pair (dExp Z a1) (dExp Z a2)
-    | mult a1 a2    => tpure mlt o pair (dExp Z a1) (dExp Z a2)
     | subtr a1 a2   => tpure subt o pair (dExp Z a1) (dExp Z a2)
+    | mult a1 a2    => tpure mlt o pair (dExp Z a1) (dExp Z a2)
+    | ttrue         => constant true
+    | ffalse        => constant false
+    | eq a1 a2      => tpure chkeq o pair (dExp Z a1) (dExp Z a2)
+    | neq a1 a2     => tpure chkneq o pair (dExp Z a1) (dExp Z a2)
     | gt a1 a2      => tpure chkgt o pair (dExp Z a1) (dExp Z a2)
     | lt a1 a2      => tpure chklt o pair (dExp Z a1) (dExp Z a2)
     | ge a1 a2      => tpure chkge o pair (dExp Z a1) (dExp Z a2)
     | le a1 a2      => tpure chkle o pair (dExp Z a1) (dExp Z a2)
-    | eq a1 a2      => tpure chkeq o pair (dExp Z a1) (dExp Z a2)
-    | neq a1 a2     => tpure chkneq o pair (dExp Z a1) (dExp Z a2)
     | and b1 b2     => tpure andB o pair (dExp bool b1) (dExp bool b2)
     | or b1 b2      => tpure orB o pair (dExp bool b1) (dExp bool b2)
     | neg b         => tpure notB o (dExp bool b)
@@ -72,7 +76,7 @@ Module Make(Import M: Memory.T).
     | cond b c2 c3      => copair (dCmd c2) (dCmd c3) o (pbl o (dExp bool b))
     | while b c4        => (copair (lpi (pbl o (dExp bool b)) (dCmd c4) o (dCmd c4)) (@id unit)) o (pbl o (dExp bool b))
     | THROW e           => (throw unit e)
-    | TRY_CATCH e c1 c2 => (@try_catch _ _ e (dCmd c1) (dCmd c2))
+    | TRY_CATCH e c1 c2 => (try_catch e (dCmd c1) (dCmd c2))
   end.
 
  Notation "j '::=' e0"                            := (assign j e0) (at level 60).

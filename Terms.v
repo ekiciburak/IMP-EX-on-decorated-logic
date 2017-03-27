@@ -18,11 +18,11 @@ Require Import Bool.
 Module Make(Import M: Memory.T).
 
  Inductive term: Type -> Type -> Type :=
+  | tpure      : forall {X Y: Type}, (X -> Y) -> term Y X
   | comp       : forall {X Y Z: Type}, term X Y -> term Y Z -> term X Z
   | pair       : forall {X Y Z: Type}, term X Z -> term Y Z -> term (X*Y) Z
   | copair     : forall {X Y Z}, term Z X -> term Z Y -> term Z (X+Y) 
   | downcast   : forall {X Y} (f: term X Y), term X Y 
-  | tpure      : forall {X Y: Type}, (X -> Y) -> term Y X
   | lookup     : forall i:Loc, term Z unit    
   | update     : forall i:Loc, term unit Z
   | tag        : forall e: EName, term Empty_set unit	
@@ -38,11 +38,11 @@ Module Make(Import M: Memory.T).
  Definition constant {X: Type} (v: X): term X unit  := tpure (fun _ => v).
  Definition emptyfun (X: Type) (e: Empty_set) : X := match e with end.
  Definition empty X: term X Empty_set := tpure (emptyfun X).
- Definition coproj1 {X Y}    : term (X+Y) X     := tpure inl.
- Definition coproj2 {X Y}    : term (X+Y) Y     := tpure inr.
+ Definition in1 {X Y}    : term (X+Y) X     := tpure inl.
+ Definition in2 {X Y}    : term (X+Y) Y     := tpure inr.
 
 Definition throw (X: Type) (e: EName): term X unit := (empty X) o tag e.
-Definition try_catch (X Y: Type) (e: EName) (f: term Y X) (g: term Y unit) := downcast(copair (@id Y) (g o untag e) o coproj1 o f).
+Definition try_catch (X Y: Type) (e: EName) (f: term Y X) (g: term Y unit) := downcast(copair (@id Y) (g o untag e) o in1 o f).
 
 (**IMP terms: additional**)
 

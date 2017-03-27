@@ -46,16 +46,17 @@ Module Export AxiomsExp := Decorations.Make(M).
   | swtoss: forall X Y k (f g: term X Y), PPG k f -> PPG k g -> f ==~ g -> f === g
   | eeffect: forall X Y (f g: term Y X), (f o (empty X) === g o (empty X)) -> f ==~ g -> f === g (* dual effect measure - Dumas et al.'14 *)
   | elocal_global: forall X (f g: term X Empty_set), (forall t: EName, f o tag t ==~ g o tag t) -> f === g (* dual to eq3 *)
-  | ss_lcopair_eq: forall X X' Y k (f1: term Y X) (f2: term Y X'), PPG k f1 -> (copair f1 f2) o coproj2 === f2
+  | ss_lcopair_eq: forall X X' Y k (f1: term Y X) (f2: term Y X'), PPG k f1 -> (copair f1 f2) o in2 === f2
+ (* | tcomp: forall X Y Z (f: Y -> Z) (g: X -> Y), tpure f o tpure g  === tpure (fun x => f (g x)) *)
        (*IMP Assumptions*)
   | imp_loopiter: forall (b: term (unit+unit) unit) (f : term unit unit), lpi b f === (copair ((lpi b f) o f) id) o b 
   | imp1: forall (p q: Z) (f: Z*Z -> Z), tpure f o (pair (@constant Z p) (@constant Z q)) === (constant (f(p,q)))
-  | imp2: forall (p q: Z) (f: Z*Z -> bool), f(p, q) = false -> pbl  o (tpure f o (pair (@constant Z p) (@constant Z q))) === coproj2
-  | imp3: forall (p q: Z) (f: Z*Z -> bool), f(p, q) -> pbl  o (tpure f o (pair (@constant Z p) (@constant Z q))) === coproj1
-  | imp4: forall (p q: bool) (f: bool*bool -> bool), f(p, q) = false -> pbl o (tpure f o (pair (@constant bool p) (@constant bool q))) === coproj2
-  | imp5: forall (p q: bool) (f: bool*bool -> bool), f(p, q) -> pbl o (tpure f o (pair (@constant bool p) (@constant bool q))) === coproj1
-  | imp6: forall X Y Z (f: Y -> Z) (g: X -> Y), tpure f o tpure g  === tpure (fun x => f (g x))
-  | imp7: forall X Y (f g: Y -> X), (forall x, f x = g x) -> tpure f === tpure g
+  | imp2: forall (p q: Z) (f: Z*Z -> bool), f(p, q) = false -> pbl  o (tpure f o (pair (@constant Z p) (@constant Z q))) === in2
+  | imp3: forall (p q: Z) (f: Z*Z -> bool), f(p, q) -> pbl  o (tpure f o (pair (@constant Z p) (@constant Z q))) === in1
+  | imp4: forall (p q: bool) (f: bool*bool -> bool), f(p, q) = false -> pbl o (tpure f o (pair (@constant bool p) (@constant bool q))) === in2
+  | imp5: forall (p q: bool) (f: bool*bool -> bool), f(p, q) -> pbl o (tpure f o (pair (@constant bool p) (@constant bool q))) === in1
+  | imp6: forall X Y (f g: Y -> X), (forall x, f x = g x) -> tpure f === tpure g
+  | tcomp: forall X Y Z (f: Z -> Y) (g: Y -> X), tpure (compose g f) === tpure g o tpure f
        (*\IMP Assumptions*)
  with ws: forall X Y, relation (term X Y) := 
   | wssym: forall X Y, Symmetric (@ws X Y)
@@ -81,8 +82,8 @@ Module Export AxiomsExp := Decorations.Make(M).
   | eax2: forall (e1 e2: EName), e1 <> e2 -> untag e2 o tag e1 ==~ (empty unit) o tag e1
   | sstosw: forall  X Y (f g: term X Y), f === g -> f ==~ g
   | sw_downcast: forall X Y (f: term X Y), f ==~ (@downcast X Y f)
-  | sw_lcopair_eq: forall X X' Y k (f1: term Y X) (f2: term Y X'), PPG k f1 -> (copair f1 f2) o coproj1 ==~ f1
-  | lcopair_ueq: forall  X X' Y (f g: term Y (X+X')), (f o coproj1 ==~ g o coproj1) -> (f o coproj2 ==~ g o coproj2) -> f ==~ g
+  | sw_lcopair_eq: forall X X' Y k (f1: term Y X) (f2: term Y X'), PPG k f1 -> (copair f1 f2) o in1 ==~ f1
+  | lcopair_ueq: forall  X X' Y (f g: term Y (X+X')), (f o in1 ==~ g o in1) -> (f o in2 ==~ g o in2) -> f ==~ g
  with ww: forall X Y, relation (term X Y) :=
   | wwsym: forall X Y, Symmetric (@ww X Y)
   | wwtrans: forall X Y, Transitive (@ww X Y)

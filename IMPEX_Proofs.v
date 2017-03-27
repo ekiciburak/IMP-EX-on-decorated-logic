@@ -32,10 +32,10 @@ Module Make(Import M: Memory.T).
         ELSE g 
         ENDIF}}.
  Proof.
-      intros. simpl. induction b. rewrite (@copair_true rw);  [reflexivity| edecorate | edecorate].
-      setoid_rewrite (@copair_false rw); [reflexivity | edecorate | edecorate | edecorate | edecorate].
- Qed. 
-
+      intros. case_eq b; intros; simpl.
+      - rewrite !(@copair_true rw); try edecorate. easy.
+      - rewrite !(@copair_false rw); try edecorate. easy.
+ Qed.
 
  Lemma lemma2: forall (x: Loc),
 	{{x ::= (const Z 2) ;;
@@ -55,7 +55,7 @@ Module Make(Import M: Memory.T).
       (copair
       (lpi (pbl o (tpure chklt o pair (lookup x) (constant 11)))
       (update x o (tpure add o pair (lookup x) (constant 4)))
-      o (update x o (tpure add o pair (lookup x) (constant 4)))) id o coproj1)
+      o (update x o (tpure add o pair (lookup x) (constant 4)))) id o in1)
                           ===
       (lpi (pbl o (tpure chklt o pair (lookup x) (constant 11)))
       (update x o (tpure add o pair (lookup x) (constant 4)))
@@ -105,7 +105,7 @@ Module Make(Import M: Memory.T).
  Lemma lemma3: forall (x y: Loc), forall (e: EName), x <> y ->
        {{x ::= (const Z 1) ;;
          (y ::= (const Z 20)) ;;
-         TRY(WHILE (const bool true)
+         TRY(WHILE (ttrue)
                DO(IFB ((var x) <<= (const Z 0))
                     THEN (THROW e)
                   ELSE(x ::= ((var x) +++ (const Z (-1))))
@@ -120,7 +120,7 @@ Module Make(Import M: Memory.T).
       apply (@swtoss _ _ rw). apply is_comp. apply is_ro_rw, is_pure_ro, is_downcast.
       edecorate. edecorate.
  (*tackling downcast*)
-      transitivity( ((copair id ((update y o constant 7) o untag e) o coproj1)
+      transitivity( ((copair id ((update y o constant 7) o untag e) o in1)
       o (copair
         (lpi (pbl o constant true)
            (copair (throw () e)
@@ -166,7 +166,7 @@ Module Make(Import M: Memory.T).
  (*an exception is thrown -> quitting the loop in the second loop iteration*)
     unfold throw. rewrite PPT.
     setoid_rewrite assoc. setoid_rewrite assoc at 2. setoid_rewrite <- assoc at 3.
-    cut(coproj1 o (@empty unit) === coproj2).
+    cut(in1 o (@empty unit) === in2).
       intro H1. rewrite H1.
       rewrite assoc. rewrite (@ss_lcopair_eq _ _ _ rw).
       setoid_rewrite assoc. setoid_rewrite <- assoc at 2.

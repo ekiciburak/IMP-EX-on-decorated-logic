@@ -230,7 +230,7 @@ Module Make(Import M: Memory.T).
  Lemma propagator_propagates_1: forall X Y (g: term Y X), PPG rw g -> g o (@empty X) === (@empty Y). 
  Proof. intros X Y g H. setoid_rewrite ss_empty; [reflexivity| decorate]. Qed.
 
- Lemma propagator_propagates_2: forall X Y (g: term Y X), PPG rw g -> g === (copair g (@empty Y)) o coproj1. 
+ Lemma propagator_propagates_2: forall X Y (g: term Y X), PPG rw g -> g === (copair g (@empty Y)) o in1. 
  Proof.
     intros X Y g H. apply (@swtoss _ _ rw); [edecorate| edecorate| ]. apply swsym.
     apply (@sw_lcopair_eq _ _ _ rw); edecorate.
@@ -252,13 +252,13 @@ Module Make(Import M: Memory.T).
 Qed.
 
  Lemma commutation_untag_untag: forall (t s: EName) , s <> t -> 
-    (rcoprod (untag t) id) o coproj2 o (untag s) === (lcoprod id (untag s)) o coproj1 o (untag t).
+    (rcoprod (untag t) id) o in2 o (untag s) === (lcoprod id (untag s)) o in1 o (untag t).
  Proof.
     intros. apply elocal_global. intro r.  
     (* r = t /\ r <> s *)
     destruct(Exc_dec r s). rewrite e. setoid_rewrite <- assoc at 4. rewrite (@eax2 s t); [| exact H].
       setoid_rewrite <- assoc at 4. setoid_rewrite assoc at 2.
-      cut (coproj1 o (@empty unit) === coproj2).
+      cut (in1 o (@empty unit) === in2).
         intro H1. rewrite H1.
         rewrite assoc, (@ss_lcoprod_eq _ _ _ _ pure); [| edecorate| edecorate].
         setoid_rewrite <- assoc. rewrite eax1.
@@ -269,7 +269,7 @@ Qed.
      
      destruct(Exc_dec r t). rewrite e. setoid_rewrite <- assoc. rewrite (@eax2 t s); [| auto].
        setoid_rewrite <- assoc. setoid_rewrite assoc at 2.
-        cut (coproj2 o (@empty unit) === coproj1).
+        cut (in2 o (@empty unit) === in1).
           intro H1. rewrite H1.
           rewrite assoc, ss_rcoprod_eq; [| edecorate| edecorate].
           setoid_rewrite <- assoc. rewrite eax1.
@@ -280,13 +280,13 @@ Qed.
 
      setoid_rewrite <- assoc. rewrite (@eax2 r s); [| auto].
        setoid_rewrite <- assoc. setoid_rewrite assoc at 2.
-        cut (coproj2 o (@empty unit) === coproj1).
+        cut (in2 o (@empty unit) === in1).
           intro H1. rewrite H1.
           rewrite assoc, ss_rcoprod_eq; [| edecorate| edecorate].
           setoid_rewrite <- assoc. 
           rewrite (@eax2 r t); [| auto].
           setoid_rewrite assoc at 3.
-          cut (coproj1 o (@empty unit) === coproj2).
+          cut (in1 o (@empty unit) === in2).
             intro H2. rewrite H2.
             setoid_rewrite assoc at 2. rewrite ss_lcoprod_eq; [| edecorate| edecorate].
             setoid_rewrite <- assoc. rewrite eax2; [| auto].
@@ -300,12 +300,12 @@ Qed.
 
  (*to be added in the thesis?*)
  Lemma annihilation_catch_raise: forall (l: EName), forall (X Y: Type) (f: term Y X), PPG rw f ->
- downcast ((copair id ((empty Y o tag l) o untag l) o coproj1) o f) === f.
+ downcast ((copair id ((empty Y o tag l) o untag l) o in1) o f) === f.
  Proof.
     intros. apply (@swtoss _ _ rw); [decorate | edecorate |].
     rewrite <- sw_downcast.
     apply sstosw. setoid_rewrite <- assoc.
-    transitivity(copair id ((@empty Y) o id) o coproj1 o f).
+    transitivity(copair id ((@empty Y) o id) o in1 o f).
       rewrite assoc. apply replsubs; [| reflexivity]. apply replsubs; [| reflexivity]. 
         apply ss_lcopair_u.
           setoid_rewrite sw_lcopair_eq; [reflexivity| edecorate| edecorate].
@@ -347,7 +347,7 @@ Qed.
 
 (*try0*)
  Lemma TRY0: forall X Y (e: EName) (u: term Y X) (b: term Y unit), EPURE rw u -> PPG rw b ->
-         downcast ((copair id (b o untag e) o coproj1) o u) === u.
+         downcast ((copair id (b o untag e) o in1) o u) === u.
  Proof.
     intros X Y e u b H0 H1.
       apply (@swtoss _ _ rw); [decorate |edecorate| ].
@@ -359,13 +359,13 @@ Qed.
 
 (*try1*)
  Lemma TRY1: forall X Y (e: EName) (u: term unit X) (b: term Y unit), EPURE rw u -> PPG rw b ->
-            downcast ((copair id (b o untag e) o coproj1) o ((empty Y o tag e) o u)) === b o u.
+            downcast ((copair id (b o untag e) o in1) o ((empty Y o tag e) o u)) === b o u.
  Proof.
     intros X Y e u b H0 H1.
       apply (@swtoss _ _ rw); [decorate |edecorate| ].
       rewrite <- sw_downcast.
       do 2 setoid_rewrite assoc. setoid_rewrite <- assoc at 3.
-      cut (coproj2 === coproj1 o (@empty Y)).
+      cut (in2 === in1 o (@empty Y)).
         intro H2. rewrite <- H2.
         rewrite ss_lcopair_eq; [| edecorate].
         apply (@pswsubs _ _ _ rw); [| split; [exact H0| reflexivity]].

@@ -4,7 +4,7 @@
 (*              (see file LICENSE for more details)                       *)
 (*                                                                        *)
 (*       Copyright 2015: Jean-Guillaume Dumas, Dominique Duval            *)
-(*			 Burak Ekici, Damien Pous.                        *)
+(*			 Burak Ekici, Damien Pous.                                        *)
 (**************************************************************************)
 
 Require Import Relations Morphisms.

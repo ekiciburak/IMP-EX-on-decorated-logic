@@ -51,7 +51,7 @@ Module Make(Import M: Memory.T).
 
  Theorem interaction_update_update: forall (x: Loc) (p q: Z), 
          (update x o constant q) o (update x o constant p) === update x o constant q.
-         (* Prop: 2.3: IMPEX adapted version *)
+         (* Prop: 2.3: IMP+Exc adapted version *)
  Proof. intros x p q. apply local_global.
           intro i. destruct(Loc_dec i x). rewrite e.
             (* i = x *)
@@ -68,7 +68,7 @@ Module Make(Import M: Memory.T).
               apply replsubs; [reflexivity |].
               setoid_rewrite ss_unit; [reflexivity| decorate| decorate].
             (*1st cut*)
-             setoid_rewrite ss_unit; [reflexivity| decorate| decorate].           
+             setoid_rewrite ss_unit; [reflexivity| decorate| decorate].
  Qed.
 
  Theorem interaction_update_lookup: forall i: Loc,
@@ -124,7 +124,7 @@ Module Make(Import M: Memory.T).
  Lemma commutation_update_update: forall {x y: Loc}, forall (n m: Z), x<>y -> 
 	(update y o constant m) o (update x o constant n) === 
         (update x o constant n) o (update y o constant m).
-         (*Prop 2.6: IMPEX adapted version.*)
+         (*Prop 2.6: IMP+Exc adapted version.*)
  Proof.
     intros x y n m H0. apply local_global.
       intro i. destruct (Loc_dec i y). rewrite e.

@@ -46,7 +46,7 @@ Module Make(Import M: Memory.T).
 	{{x ::= (const Z 14)}}.
  Proof.
     intro x. simpl.
-      do 3 setoid_rewrite <- assoc at 1. rewrite commutation_lookup_constant_update.
+      do 3 setoid_rewrite <- assoc at 1. rewrite CLUC.
       do 4 setoid_rewrite assoc at 1.
       do 2 setoid_rewrite <- assoc at 3. rewrite imp3. 
  (*first loop iteration*)
@@ -62,36 +62,36 @@ Module Make(Import M: Memory.T).
       o (update x o (tpure add o pair (lookup x) (constant 4))))
     ).
     intro H1. rewrite H1. 
-      do 3 setoid_rewrite <- assoc at 1. rewrite commutation_lookup_constant_update. 
+      do 3 setoid_rewrite <- assoc at 1. rewrite CLUC. 
       do 3 setoid_rewrite assoc at 1. setoid_rewrite <- assoc at 2.
       rewrite imp1. simpl. setoid_rewrite <- assoc at 2.
       setoid_rewrite assoc. do 2 setoid_rewrite <- assoc at 1.
-      rewrite interaction_update_update.
+      rewrite IUU.
  (*second loop iteration*)
     rewrite imp_loopiter.
-    do 3 setoid_rewrite <- assoc at 1. rewrite commutation_lookup_constant_update.
+    do 3 setoid_rewrite <- assoc at 1. rewrite CLUC.
     do 3 setoid_rewrite assoc at 1.
       do 2 setoid_rewrite <- assoc at 2. rewrite imp3.
       rewrite H1.
-      do 3 setoid_rewrite <- assoc at 1. rewrite commutation_lookup_constant_update. 
+      do 3 setoid_rewrite <- assoc at 1. rewrite CLUC. 
       do 3 setoid_rewrite assoc at 1. setoid_rewrite <- assoc at 2.
       rewrite imp1. simpl. setoid_rewrite <- assoc at 2.
       setoid_rewrite assoc. do 2 setoid_rewrite <- assoc at 1.
-      rewrite interaction_update_update.
+      rewrite IUU.
  (*third loop iteration*)
     rewrite imp_loopiter.
-    do 3 setoid_rewrite <- assoc at 1. rewrite commutation_lookup_constant_update.
+    do 3 setoid_rewrite <- assoc at 1. rewrite CLUC.
     do 3 setoid_rewrite assoc at 1.
       do 2 setoid_rewrite <- assoc at 2. rewrite imp3. 
       rewrite H1.
-      do 3 setoid_rewrite <- assoc at 1. rewrite commutation_lookup_constant_update. 
+      do 3 setoid_rewrite <- assoc at 1. rewrite CLUC. 
       do 3 setoid_rewrite assoc at 1. setoid_rewrite <- assoc at 2.
       rewrite imp1. simpl. setoid_rewrite <- assoc at 2.
       setoid_rewrite assoc. do 2 setoid_rewrite <- assoc at 1.
-      rewrite interaction_update_update.
+      rewrite IUU.
  (*fourth loop iteration*)
   rewrite imp_loopiter.
-    do 3 setoid_rewrite <- assoc at 1. rewrite commutation_lookup_constant_update.
+    do 3 setoid_rewrite <- assoc at 1. rewrite CLUC.
     do 3 setoid_rewrite assoc at 1.
       do 2 setoid_rewrite <- assoc at 2. rewrite imp2.
       rewrite (@ss_lcopair_eq _ _ _ rw); [| edecorate].
@@ -133,30 +133,30 @@ Module Make(Import M: Memory.T).
       o ((update y o constant 20) o (update x o constant 1))).
       apply (@pswsubs _ _ _  rw) .
         apply swsym, sw_downcast. unfold pure_id. split. edecorate. reflexivity.
-    setoid_rewrite commutation_update_update; [| exact H| exact H].
+    setoid_rewrite CUU; [| exact H| exact H].
       setoid_rewrite <- assoc at 1.
  (*first loop iteration*)
     rewrite (@copair_true rw); [ | unfold throw; apply is_comp; [edecorate| apply is_comp; [ apply is_copair;
       [decorate | decorate | edecorate]| edecorate ]]| decorate ].      
     do 3 setoid_rewrite assoc at 3.
     setoid_rewrite assoc at 2. setoid_rewrite <- assoc at 4.
-    rewrite commutation_lookup_constant_update.
+    rewrite CLUC.
     do 2 setoid_rewrite  assoc at 3. do 2 setoid_rewrite <- assoc at 6.
     rewrite imp2. setoid_rewrite <- assoc at 6.
     rewrite (@ss_lcopair_eq _ _ _ rw).
     setoid_rewrite <- assoc at 4. do 3 setoid_rewrite <- assoc at 4.
-    rewrite commutation_lookup_constant_update.
+    rewrite CLUC.
     do 3 setoid_rewrite assoc at 3. setoid_rewrite <- assoc at 5.
     rewrite imp1. 
     simpl. setoid_rewrite <- assoc at 5. setoid_rewrite <- assoc at 4.
-    rewrite interaction_update_update.
+    rewrite IUU.
  (*second loop iteration*)
     rewrite imp_loopiter.
     rewrite (@copair_true rw); [ | unfold throw; apply is_comp; [edecorate| apply is_comp; [ apply is_copair;
       [decorate | decorate | edecorate]| edecorate ]]| decorate ].    
     setoid_rewrite <- assoc at 3. do 3 setoid_rewrite assoc at 3.
     setoid_rewrite assoc at 2. setoid_rewrite <- assoc at 4.
-    rewrite commutation_lookup_constant_update.
+    rewrite CLUC.
     do 2 setoid_rewrite  assoc at 3. do 2 setoid_rewrite <- assoc at 6.
     rewrite imp3. setoid_rewrite <- assoc at 6.
     rewrite <- pbl_true. rewrite (@copair_true rw); [| decorate| edecorate].
@@ -176,9 +176,9 @@ Module Make(Import M: Memory.T).
       setoid_rewrite assoc at 1. apply (@pswsubs _ _ _ rw).
       apply eax1. unfold pure_id. 
       split. decorate. reflexivity. rewrite ids. setoid_rewrite <- assoc at 3.
-      rewrite commutation_update_update. setoid_rewrite assoc at 1.
-      rewrite interaction_update_update.
-      rewrite commutation_update_update. reflexivity.
+      rewrite CUU. setoid_rewrite assoc at 1.
+      rewrite IUU.
+      rewrite CUU. reflexivity.
       exact H. auto. decorate.
       repeat apply is_comp. unfold lpi. 
     (*1st cut*)

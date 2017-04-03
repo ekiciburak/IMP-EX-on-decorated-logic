@@ -20,7 +20,8 @@ Module Make(Import M: Memory.T).
 
 (**STATES**)
 
- Theorem annihilation_update_lookup: forall i: Loc, 
+ (** annihilation lookup-update *)
+ Theorem ALU: forall i: Loc, 
          update i o lookup i === id.
          (* Prop: 2.1: All Cases *)
  Proof.
@@ -38,7 +39,8 @@ Module Make(Import M: Memory.T).
          symmetry. apply ss_unit. decorate.
  Qed.
 
- Theorem interaction_lookup_lookup: forall i,
+ (** interaction lookup-lookup *)
+ Theorem ILL: forall i,
          lookup i o forget o lookup i === lookup i.
          (* Prop: 2.2: All Cases: Simplified Version *)
  Proof.
@@ -49,7 +51,8 @@ Module Make(Import M: Memory.T).
            symmetry. apply ss_unit; decorate.
  Qed.
 
- Theorem interaction_update_update: forall (x: Loc) (p q: Z), 
+ (** interaction update-update *)
+ Theorem IUU: forall (x: Loc) (p q: Z), 
          (update x o constant q) o (update x o constant p) === update x o constant q.
          (* Prop: 2.3: IMP+Exc adapted version *)
  Proof. intros x p q. apply local_global.
@@ -71,7 +74,8 @@ Module Make(Import M: Memory.T).
              setoid_rewrite ss_unit; [reflexivity| decorate| decorate].
  Qed.
 
- Theorem interaction_update_lookup: forall i: Loc,
+ (** interaction update-lookup *)
+ Theorem IUL: forall i: Loc,
          lookup i o update i ~== id. (* Prop: 2.4: All Cases *)
  Proof. intro i. apply ax1. Qed.
 
@@ -121,7 +125,8 @@ Module Make(Import M: Memory.T).
  Qed.
 *)
 
- Lemma commutation_update_update: forall {x y: Loc}, forall (n m: Z), x<>y -> 
+ (** commutation update-update *)
+ Lemma CUU: forall {x y: Loc}, forall (n m: Z), x<>y -> 
 	(update y o constant m) o (update x o constant n) === 
         (update x o constant n) o (update y o constant m).
          (*Prop 2.6: IMP+Exc adapted version.*)
@@ -169,7 +174,8 @@ Module Make(Import M: Memory.T).
         setoid_rewrite ss_unit; [reflexivity| edecorate| decorate ].
  Qed.
 
- Theorem commutation_lookup_constant: forall (i: Loc) (c: Z), 
+ (** commutation lookup-constant *)
+ Theorem CLC: forall (i: Loc) (c: Z), 
          (lookup i o (update i o (constant c)))
          === 
          (constant c) o update i o (constant c).
@@ -194,7 +200,8 @@ Module Make(Import M: Memory.T).
      apply ws_unit.
  Qed.
 
- Lemma commutation_lookup_constant_update: forall (m: Loc) (p q: Z),
+ (** interactcommutation lookup-update-update *)
+ Lemma CLUC: forall (m: Loc) (p q: Z),
       (pair (lookup m) (constant q)) o (update m o constant p)
       ===
       (pair (constant p) (constant q)) o (update m o constant p).
@@ -203,7 +210,7 @@ Module Make(Import M: Memory.T).
         apply ss_lpair_u.
           (*pi1 o f === pi1 o g*)
           setoid_rewrite assoc. setoid_rewrite fst_lpair_eq; [| decorate| decorate| decorate| decorate].
-          rewrite commutation_lookup_constant, assoc. reflexivity.
+          rewrite CLC, assoc. reflexivity.
           (*pi2 o f === pi2 o g*)
           setoid_rewrite assoc. setoid_rewrite snd_lpair_eq; [reflexivity| decorate| decorate| decorate| decorate]. 
  Qed.
@@ -227,6 +234,7 @@ Module Make(Import M: Memory.T).
 
 (**EXCEPTIONS**)
 
+(*
  Lemma propagator_propagates_1: forall X Y (g: term Y X), PPG rw g -> g o (@empty X) === (@empty Y). 
  Proof. intros X Y g H. setoid_rewrite ss_empty; [reflexivity| decorate]. Qed.
 
@@ -235,7 +243,9 @@ Module Make(Import M: Memory.T).
     intros X Y g H. apply (@swtoss _ _ rw); [edecorate| edecorate| ]. apply swsym.
     apply (@sw_lcopair_eq _ _ _ rw); edecorate.
  Qed.
+*)
 
+ (** annihilation tag-untag *)
  Lemma ATU: forall e: EName, (tag e) o (untag e) === (@id Empty_set).
  Proof.
     intro e.
@@ -251,7 +261,8 @@ Module Make(Import M: Memory.T).
     apply swrepl; [reflexivity| apply eax2; exact Hb]. (* (2.2) *)
 Qed.
 
- Lemma commutation_untag_untag: forall (t s: EName) , s <> t -> 
+ (** commutation untag-untag *)
+ Lemma CUUe: forall (t s: EName) , s <> t -> 
     (rcoprod (untag t) id) o in2 o (untag s) === (lcoprod id (untag s)) o in1 o (untag t).
  Proof.
     intros. apply elocal_global. intro r.  
@@ -298,8 +309,8 @@ Qed.
         setoid_rewrite ss_empty; [reflexivity| edecorate| edecorate].
 Qed.
 
- (*to be added in the thesis?*)
- Lemma annihilation_catch_raise: forall (l: EName), forall (X Y: Type) (f: term Y X), PPG rw f ->
+ (** annihilation catch-raise *)
+ Lemma ACR: forall (l: EName), forall (X Y: Type) (f: term Y X), PPG rw f ->
  downcast ((copair id ((empty Y o tag l) o untag l) o in1) o f) === f.
  Proof.
     intros. apply (@swtoss _ _ rw); [decorate | edecorate |].

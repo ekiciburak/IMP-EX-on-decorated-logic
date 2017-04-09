@@ -51,10 +51,10 @@ Module Export AxiomsExp := Decorations.Make(M).
        (*IMP Assumptions*)
   | imp_loopiter: forall (b: term (unit+unit) unit) (f : term unit unit), lpi b f === (copair ((lpi b f) o f) id) o b 
   | imp1: forall (p q: Z) (f: Z*Z -> Z), tpure f o (pair (@constant Z p) (@constant Z q)) === (constant (f(p,q)))
-  | imp2: forall (p q: Z) (f: Z*Z -> bool), f(p, q) = false -> pbl  o (tpure f o (pair (@constant Z p) (@constant Z q))) === in2
-  | imp3: forall (p q: Z) (f: Z*Z -> bool), f(p, q) -> pbl  o (tpure f o (pair (@constant Z p) (@constant Z q))) === in1
-  | imp4: forall (p q: bool) (f: bool*bool -> bool), f(p, q) = false -> pbl o (tpure f o (pair (@constant bool p) (@constant bool q))) === in2
-  | imp5: forall (p q: bool) (f: bool*bool -> bool), f(p, q) -> pbl o (tpure f o (pair (@constant bool p) (@constant bool q))) === in1
+  | imp2: forall (p q: Z) (f: Z*Z -> bool), f(p, q) = false -> (tpure f o (pair (@constant Z p) (@constant Z q))) === constant false
+  | imp3: forall (p q: Z) (f: Z*Z -> bool), f(p, q) = true -> (tpure f o (pair (@constant Z p) (@constant Z q))) === constant true
+  | imp4: forall (p q: bool) (f: bool*bool -> bool), f(p, q) = false -> (tpure f o (pair (@constant bool p) (@constant bool q))) === constant false
+  | imp5: forall (p q: bool) (f: bool*bool -> bool), f(p, q) = true -> (tpure f o (pair (@constant bool p) (@constant bool q))) === constant true
   | imp6: forall X Y (f g: Y -> X), (forall x, f x = g x) -> tpure f === tpure g
   | tcomp: forall X Y Z (f: Z -> Y) (g: Y -> X), tpure (compose g f) === tpure g o tpure f
        (*\IMP Assumptions*)

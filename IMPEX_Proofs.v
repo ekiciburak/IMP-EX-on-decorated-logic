@@ -4,7 +4,7 @@
 (*              (see file LICENSE for more details)                       *)
 (*                                                                        *)
 (*       Copyright 2015: Jean-Guillaume Dumas, Dominique Duval            *)
-(*			 Burak Ekici, Damien Pous.                        *)
+(*			                 Burak Ekici, Damien Pous.                        *)
 (**************************************************************************)
 
 Require Import Relations Morphisms.
@@ -55,7 +55,7 @@ Module Make(Import M: Memory.T).
       (copair
       (lpi (pbl o (tpure chklt o pair (lookup x) (constant 11)))
       (update x o (tpure add o pair (lookup x) (constant 4)))
-      o (update x o (tpure add o pair (lookup x) (constant 4)))) id o in1)
+      o (update x o (tpure add o pair (lookup x) (constant 4)))) id o (pbl o constant true))
                           ===
       (lpi (pbl o (tpure chklt o pair (lookup x) (constant 11)))
       (update x o (tpure add o pair (lookup x) (constant 4)))
@@ -94,12 +94,10 @@ Module Make(Import M: Memory.T).
     do 3 setoid_rewrite <- assoc at 1. rewrite CLUC.
     do 3 setoid_rewrite assoc at 1.
       do 2 setoid_rewrite <- assoc at 2. rewrite imp2.
-      rewrite (@ss_lcopair_eq _ _ _ rw); [| edecorate].
-  rewrite idt. reflexivity.
-  simpl. reflexivity. easy. easy. 
-      apply (@swtoss _ _ rw _ _); try edecorate.
-      rewrite (@sw_lcopair_eq _ _ _ rw); try edecorate.  
-  easy. easy.
+      rewrite !(@copair_false rw); try edecorate.
+      rewrite idt. reflexivity. easy. easy. easy.
+      rewrite !(@copair_true rw); try edecorate.
+    easy. easy.
  Qed.
 
  Lemma lemma3: forall (x y: Loc), forall (e: EName), x <> y ->
@@ -137,13 +135,13 @@ Module Make(Import M: Memory.T).
       setoid_rewrite <- assoc at 1.
  (*first loop iteration*)
     rewrite (@copair_true rw); [ | unfold throw; apply is_comp; [edecorate| apply is_comp; [ apply is_copair;
-      [decorate | decorate | edecorate]| edecorate ]]| decorate ].      
+      [decorate | decorate | edecorate]| edecorate ]]| decorate ].
     do 3 setoid_rewrite assoc at 3.
     setoid_rewrite assoc at 2. setoid_rewrite <- assoc at 4.
     rewrite CLUC.
     do 2 setoid_rewrite  assoc at 3. do 2 setoid_rewrite <- assoc at 6.
     rewrite imp2. setoid_rewrite <- assoc at 6.
-    rewrite (@ss_lcopair_eq _ _ _ rw).
+      rewrite !(@copair_false rw); try edecorate.
     setoid_rewrite <- assoc at 4. do 3 setoid_rewrite <- assoc at 4.
     rewrite CLUC.
     do 3 setoid_rewrite assoc at 3. setoid_rewrite <- assoc at 5.
@@ -153,14 +151,15 @@ Module Make(Import M: Memory.T).
  (*second loop iteration*)
     rewrite imp_loopiter.
     rewrite (@copair_true rw); [ | unfold throw; apply is_comp; [edecorate| apply is_comp; [ apply is_copair;
-      [decorate | decorate | edecorate]| edecorate ]]| decorate ].    
+      [decorate | decorate | edecorate]| edecorate ]]| decorate ].
     setoid_rewrite <- assoc at 3. do 3 setoid_rewrite assoc at 3.
     setoid_rewrite assoc at 2. setoid_rewrite <- assoc at 4.
     rewrite CLUC.
     do 2 setoid_rewrite  assoc at 3. do 2 setoid_rewrite <- assoc at 6.
     rewrite imp3. setoid_rewrite <- assoc at 6.
-    rewrite <- pbl_true. rewrite (@copair_true rw); [| decorate| edecorate].
-    setoid_rewrite assoc at 1. setoid_rewrite assoc at 2. setoid_rewrite assoc at 2.
+    rewrite (@copair_true rw); [| decorate| edecorate].
+    setoid_rewrite assoc at 1. setoid_rewrite assoc at 2. 
+    setoid_rewrite assoc at 2.
     setoid_rewrite <- assoc at 2. setoid_rewrite <- assoc at 1.
     setoid_rewrite <- assoc at 1.
  (*an exception is thrown -> quitting the loop in the second loop iteration*)

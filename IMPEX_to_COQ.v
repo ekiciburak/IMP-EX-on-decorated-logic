@@ -4,7 +4,7 @@
 (*              (see file LICENSE for more details)                       *)
 (*                                                                        *)
 (*       Copyright 2015: Jean-Guillaume Dumas, Dominique Duval            *)
-(*			 Burak Ekici, Damien Pous.                        *)
+(*			 Burak Ekici, Damien Pous.                                        *)
 (**************************************************************************)
 
 Require Import Relations Morphisms.
@@ -21,63 +21,124 @@ Unset Implicit Arguments.
 Module Make(Import M: Memory.T).
   Module Export IMPEX_to_COQExp := Functions.Make(M).
 
- Inductive Exp : Type -> Type :=
-    | const : forall A, A -> Exp A
-    | var   : Loc -> Exp Z
-    | plus  : Exp Z -> Exp Z -> Exp Z
-    | subtr : Exp Z -> Exp Z -> Exp Z
-    | mult  : Exp Z -> Exp Z -> Exp Z
-    | ttrue : Exp bool
-    | ffalse: Exp bool
-    | eq    : Exp Z -> Exp Z -> Exp bool
-    | neq   : Exp Z -> Exp Z -> Exp bool
-    | gt    : Exp Z -> Exp Z -> Exp bool
-    | lt    : Exp Z -> Exp Z -> Exp bool
-    | ge    : Exp Z -> Exp Z -> Exp bool
-    | le    : Exp Z -> Exp Z -> Exp bool
-    | and   : Exp bool -> Exp bool -> Exp bool
-    | or    : Exp bool -> Exp bool -> Exp bool
-    | neg   : Exp bool -> Exp bool.
+ Inductive aExp : Type :=
+    | aconst: Z -> aExp
+    | var   : Loc -> aExp
+    | plus  : aExp -> aExp -> aExp
+    | subtr : aExp -> aExp -> aExp
+    | mult  : aExp -> aExp -> aExp
+with bExp : Type :=
+    | bconst: bool -> bExp
+    | ttrue : bExp
+    | ffalse: bExp
+    | eq    : aExp -> aExp -> bExp
+    | neq   : aExp -> aExp -> bExp
+    | gt    : aExp -> aExp -> bExp
+    | lt    : aExp -> aExp -> bExp
+    | ge    : aExp -> aExp -> bExp
+    | le    : aExp -> aExp -> bExp
+    | and   : bExp -> bExp -> bExp
+    | or    : bExp -> bExp -> bExp
+    | neg   : bExp -> bExp.
 
- Fixpoint dExp A (e: Exp A): term A unit :=
+ Fixpoint daExp (e: aExp): term Z unit :=
   match e with
-    | const Z n     => constant n
+    | aconst n      => constant n
     | var x         => lookup x
-    | plus a1 a2    => tpure add o pair (dExp Z a1) (dExp Z a2)
-    | subtr a1 a2   => tpure subt o pair (dExp Z a1) (dExp Z a2)
-    | mult a1 a2    => tpure mlt o pair (dExp Z a1) (dExp Z a2)
+    | plus a1 a2    => tpure add o pair (daExp a1) (daExp a2)
+    | subtr a1 a2   => tpure subt o pair (daExp a1) (daExp a2)
+    | mult a1 a2    => tpure mlt o pair (daExp a1) (daExp a2)
+  end.
+
+Definition state := Loc -> Z.
+
+Definition empty_state : state := fun _ => 0.
+
+Fixpoint aeval (st : state) (e : aExp) : Z :=
+  match e with
+    | aconst n => n
+    | var X => st X 
+    | plus a1 a2 => (aeval st a1) + (aeval st a2)
+    | subtr a1 a2  => (aeval st a1) - (aeval st a2)
+    | mult a1 a2 => (aeval st a1) * (aeval st a2)
+  end.
+
+ Fixpoint dbExp (e: bExp): term bool unit :=
+  match e with
+    | bconst n      => constant n
     | ttrue         => constant true
     | ffalse        => constant false
-    | eq a1 a2      => tpure chkeq o pair (dExp Z a1) (dExp Z a2)
-    | neq a1 a2     => tpure chkneq o pair (dExp Z a1) (dExp Z a2)
-    | gt a1 a2      => tpure chkgt o pair (dExp Z a1) (dExp Z a2)
-    | lt a1 a2      => tpure chklt o pair (dExp Z a1) (dExp Z a2)
-    | ge a1 a2      => tpure chkge o pair (dExp Z a1) (dExp Z a2)
-    | le a1 a2      => tpure chkle o pair (dExp Z a1) (dExp Z a2)
-    | and b1 b2     => tpure andB o pair (dExp bool b1) (dExp bool b2)
-    | or b1 b2      => tpure orB o pair (dExp bool b1) (dExp bool b2)
-    | neg b         => tpure notB o (dExp bool b)
+    | eq a1 a2      => tpure chkeq o pair (daExp a1) (daExp a2)
+    | neq a1 a2     => tpure chkneq o pair (daExp a1) (daExp a2)
+    | gt a1 a2      => tpure chkgt o pair (daExp a1) (daExp a2)
+    | lt a1 a2      => tpure chklt o pair (daExp a1) (daExp a2)
+    | ge a1 a2      => tpure chkge o pair (daExp a1) (daExp a2)
+    | le a1 a2      => tpure chkle o pair (daExp a1) (daExp a2)
+    | and b1 b2     => tpure andB o pair (dbExp b1) (dbExp b2)
+    | or b1 b2      => tpure orB o pair (dbExp b1) (dbExp b2)
+    | neg b         => tpure notB o (dbExp b)
+  end.
+
+Fixpoint beval (st : state) (e : bExp) : bool :=
+  match e with
+    | bconst n   => n
+    | ttrue      => true
+    | ffalse     => false
+    | eq a1 a2   => Zeq_bool (aeval st a1) (aeval st a2)
+    | neq a1 a2  => negb (Zeq_bool (aeval st a1) (aeval st a2))
+    | gt a1 a2   => Zgt_bool (aeval st a1) (aeval st a2)
+    | lt a1 a2   => Zlt_bool (aeval st a1) (aeval st a2)
+    | le a1 a2   => Zle_bool (aeval st a1) (aeval st a2)
+    | ge a1 a2   => Zge_bool (aeval st a1) (aeval st a2)
+    | and b1 b2  => andb (beval st b1) (beval st b2)
+    | or b1 b2   => orb (beval st b1) (beval st b2)
+    | neg b1     => negb (beval st b1)
   end.
 
  Inductive Cmd  : Type :=
     | skip      : Cmd
-    | sequence  : Cmd      -> Cmd   -> Cmd
-    | assign    : Loc      -> Exp Z -> Cmd 
-    | cond      : Exp bool -> Cmd   -> Cmd -> Cmd
-    | while     : Exp bool -> Cmd   -> Cmd
-    | THROW     : EName    -> Cmd
-    | TRY_CATCH : EName    -> Cmd   -> Cmd -> Cmd.
+    | sequence  : Cmd   -> Cmd  -> Cmd
+    | assign    : Loc   -> aExp -> Cmd 
+    | cond      : bExp  -> Cmd  -> Cmd -> Cmd
+    | while     : bExp  -> Cmd  -> Cmd
+    | THROW     : EName -> Cmd
+    | TRY_CATCH : EName -> Cmd  -> Cmd -> Cmd.
+
+Definition Uupdate (st : state) (X: Loc) (n : Z): state :=
+  fun X' => if Zeq_bool (loc X) (loc X') then n else st X'.
+
+Theorem update_eq : forall n X st, (Uupdate st X n) X = n.
+Proof. intros.
+       unfold Uupdate, Zeq_bool.
+       now rewrite Z.compare_refl.
+Qed.
+
+Inductive ceval : Cmd -> state -> state -> Prop :=
+  | E_Skip: forall st, ceval skip st st
+  | E_Ass : forall st a1 n X, aeval st a1 = n -> ceval (assign X a1) st (Uupdate st X n)
+  | E_Seq : forall c1 c2 st st' st'', ceval c1 st st' -> ceval c2 st' st'' -> ceval (sequence c1 c2) st st''
+  | E_IfTrue : forall st st' b1 c1 c2, beval st b1 = true  -> ceval c1 st st' -> ceval (cond b1 c1 c2) st st'
+  | E_IfFalse: forall st st' b1 c1 c2, beval st b1 = false -> ceval c2 st st' -> ceval (cond b1 c1 c2) st st'
+  | E_WhileEnd : forall b1 st c1, beval st b1 = false -> ceval (while b1 c1) st st
+  | E_WhileLoop : forall st st' st'' b1 c1, beval st b1 = true -> ceval c1 st st' ->
+                                            ceval (while b1 c1) st' st'' -> ceval (while b1 c1) st st''
+  | E_Throw: forall e st, ceval (THROW e) st st
+  | E_TC: forall e c1 c2 st , ceval (TRY_CATCH e c1 c2) st st.
 
  Fixpoint dCmd (c: Cmd): (term unit unit) :=
   match c with
     | skip              => (@id unit)
     | sequence c0 c1    => (dCmd c1) o (dCmd c0)
-    | assign j e0       => (update j) o (dExp Z e0)
-    | cond b c2 c3      => copair (dCmd c2) (dCmd c3) o (pbl o (dExp bool b))
-    | while b c4        => (copair (lpi (pbl o (dExp bool b)) (dCmd c4) o (dCmd c4)) (@id unit)) o (pbl o (dExp bool b))
+    | assign j e0       => (update j) o (daExp e0)
+    | cond b c2 c3      => copair (dCmd c2) (dCmd c3) o (pbl o (dbExp b))
+    | while b c4        => (copair (lpi (pbl o (dbExp b)) (dCmd c4) o (dCmd c4)) (@id unit)) o (pbl o (dbExp b))
     | THROW e           => (throw unit e)
     | TRY_CATCH e c1 c2 => (try_catch e (dCmd c1) (dCmd c2))
   end.
+
+Theorem equiv: forall c1 c2 st st', (dCmd c1 === dCmd c2) -> ceval c1 st st' -> ceval c2 st st'.
+Proof. Admitted.
+       
 
  Notation "j '::=' e0"                            := (assign j e0) (at level 60).
  Notation "c1 ';;' c2"                            := (sequence c1 c2) (at level 60).
@@ -100,7 +161,38 @@ Module Make(Import M: Memory.T).
  Notation " x '?|' y"                             := (or x y) (at level 60).
  Notation " '-~' x"                               := (neg x) (at level 60). 
  Notation "'{{' c '}}'"                           := (dCmd c) (at level 62).
- Notation "'``' c '``'"                           := (dExp c) (at level 62).
+ Notation "'``' c '``'"                           := (daExp c) (at level 62).
+
+ Lemma lm2: forall (x: Loc),
+	let c1 := (x ::= (aconst 2) ;;
+	  WHILE ((var x) << (aconst 11))
+	    DO (x ::= ((var x) +++ (aconst 4)))
+	  ENDWHILE) in
+   ceval c1 empty_state (Uupdate empty_state x 14).
+Proof. intros.
+       unfold c1.
+       apply E_Seq with (Uupdate empty_state x 2).
+       apply E_Ass. now cbn.
+       apply E_WhileLoop with (Uupdate (Uupdate empty_state x 2) x 6).
+       cbn. rewrite update_eq. easy.
+       apply E_Ass.
+       cbn. now rewrite update_eq.
+       apply E_WhileLoop with (Uupdate (Uupdate (Uupdate empty_state x 2) x 6) x 10).
+       cbn. rewrite update_eq. easy.
+       apply E_Ass.
+       cbn. now rewrite update_eq.
+       apply E_WhileLoop with (Uupdate (Uupdate (Uupdate (Uupdate empty_state x 2) x 6) x 10) x 14).
+       cbn. now rewrite update_eq.
+       apply E_Ass.
+       cbn. now rewrite update_eq.
+       specialize (E_WhileEnd (var x << aconst 11) (Uupdate empty_state x 14) (x ::= (var x +++ aconst 4)) ); intros.
+       assert ((Uupdate (Uupdate (Uupdate (Uupdate empty_state x 2) x 6) x 10) x 14) = (Uupdate empty_state x 14)).
+       { admit. }
+       rewrite H0.
+       apply H.
+       cbn. rewrite update_eq. easy.
+Admitted.
+
 
 (* -------------------- End of IMP to COQ conversion -------------------- *)
 

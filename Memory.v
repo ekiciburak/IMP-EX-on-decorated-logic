@@ -11,9 +11,13 @@ Require Import Relations Morphisms.
 Require Import Program.
 Require Import Le Gt Minus Bool Setoid.
 Set Implicit Arguments.
+Require Import ZArith.
+Require Import Bool.
+Open Scope Z_scope.
 
 Module Type T.
- Parameter Loc: Type.
+
+Inductive Loc : Type := Class {loc: Z}.
  Parameter Val: Loc -> Type.
  Parameter Loc_dec: forall i j: Loc, {i=j}+{i<>j}.
 

@@ -68,8 +68,6 @@ Module Make(Import M: Memory.T).
 		                 (apply is_ro_rw) 
                         ].
 
-(* Ltac asd :=  solve[ repeat  (decorate || edecorate) ].*)
-
  Class PURE {A B: Type} (k: ekind) (f: term A B) := ispr : is (pure, k) f.
  Hint Extern 0 (PURE _)        => decorate : typeclass_instances.
 

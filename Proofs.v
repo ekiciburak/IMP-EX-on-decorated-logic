@@ -18,6 +18,11 @@ Open Scope Z_scope.
 Module Make(Import M: Memory.T).
   Module Export ProofsExp := Derived_co_Products.Make(M). 
 
+
+Goal forall A B C D (f: term B A) (g: term C B) (h: term D C),
+  PURE epure f -> PURE epure g -> PURE epure h -> h o (g o f) === (h o g) o f.
+Proof. intros. now rewrite assoc. Qed.
+
 (**STATES**)
 
  (** annihilation lookup-update *)

@@ -122,7 +122,8 @@ Module Make(Import M: Memory.T).
  Lemma pbl_true: pbl o constant true === in1.
  Proof.
      unfold pbl, constant, in1, bool_to_two. rewrite <- tcomp.
-     apply imp6. intros. rewrite x. reflexivity.
+     unfold compose. apply imp6.
+     intros. rewrite x. reflexivity.
  Qed.
 
  Lemma pbl_false: pbl o constant false === in2.

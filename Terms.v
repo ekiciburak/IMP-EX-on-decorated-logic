@@ -23,7 +23,7 @@ Module Make(Import M: Memory.T).
   | pair       : forall {X Y Z: Type}, term X Z -> term Y Z -> term (X*Y) Z
   | copair     : forall {X Y Z}, term Z X -> term Z Y -> term Z (X+Y) 
   | downcast   : forall {X Y} (f: term X Y), term X Y 
-  | lookup     : forall i:Loc, term Z unit    
+  | lookup     : forall i:Loc, term Z unit
   | update     : forall i:Loc, term unit Z
   | tag        : forall e: EName, term Empty_set unit	
   | untag      : forall e: EName, term unit Empty_set.
@@ -32,7 +32,7 @@ Module Make(Import M: Memory.T).
 
 
  Definition id  {X: Type}            : term X X     := tpure id.
- Definition pi1 {X Y: Type}          : term X (X*Y) := tpure fst. 
+ Definition pi1 {X Y: Type}          : term X (X*Y) := tpure fst.
  Definition pi2 {X Y: Type}          : term Y (X*Y) := tpure snd.
  Definition forget {X}               : term unit X  := tpure (fun _ => tt).
  Definition constant {X: Type} (v: X): term X unit  := tpure (fun _ => v).

@@ -163,7 +163,7 @@ Proof. Admitted.
  Notation "'{{' c '}}'"                           := (dCmd c) (at level 62).
  Notation "'``' c '``'"                           := (daExp c) (at level 62).
 
- Lemma lm2: forall (x: Loc),
+Lemma lm2: forall (x: Loc),
 	let c1 := (x ::= (aconst 2) ;;
 	  WHILE ((var x) << (aconst 11))
 	    DO (x ::= ((var x) +++ (aconst 4)))
@@ -187,11 +187,13 @@ Proof. intros.
        cbn. now rewrite update_eq.
        specialize (E_WhileEnd (var x << aconst 11) (Uupdate empty_state x 14) (x ::= (var x +++ aconst 4)) ); intros.
        assert ((Uupdate (Uupdate (Uupdate (Uupdate empty_state x 2) x 6) x 10) x 14) = (Uupdate empty_state x 14)).
-       { admit. }
+       { unfold Uupdate. extensionality y.
+         case_eq (Zeq_bool (loc x) (loc y)); intros; easy.
+       }
        rewrite H0.
        apply H.
        cbn. rewrite update_eq. easy.
-Admitted.
+Qed.
 
 
 (* -------------------- End of IMP to COQ conversion -------------------- *)

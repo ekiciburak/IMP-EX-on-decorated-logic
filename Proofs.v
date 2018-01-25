@@ -84,52 +84,6 @@ Proof. intros. now rewrite assoc. Qed.
          lookup i o update i ~== id. (* Prop: 2.4: All Cases *)
  Proof. intro i. apply ax1. Qed.
 
-(*
- Theorem commutation_lookup_lookup: forall i j: Loc, i<>j ->
-         (lprod id (lookup j)) o (inv_pi1 o lookup i)
-         === 
-         permut o (lprod id (lookup i)) o (inv_pi1 o lookup j). 
-         (* Prop: 2.5: All Cases *)
- Proof.
-    intros i j n. apply lpair_u. split.
-    (*Case pi1*)
-    unfold lprod at 1. rewrite assoc. 
-    rewrite w_lpair_eq; [| decorate].
-      rewrite idt.
-      unfold inv_pi1 at 1.
-    rewrite assoc, w_lpair_eq; [| decorate].
-      rewrite idt.
-    unfold permut, lprod. rewrite assoc. setoid_rewrite assoc at 2.
-      rewrite w_lpair_eq; [| decorate].
-    rewrite assoc, s_lpair_eq; [| decorate].
-    do 2 rewrite <- assoc. setoid_rewrite assoc at 2. unfold inv_pi1.
-      rewrite s_lpair_eq; [| decorate].
-    rewrite s_unit; [| decorate].
-    cut (forget == (@id unit)). intro H. rewrite H.
-      rewrite ids. reflexivity.
-    (*1st cut*)
-    symmetry. apply s_unit; decorate.
-    (*Case pi2*)
-    unfold lprod at 1.
-    rewrite assoc. rewrite s_lpair_eq; [| decorate].
-    unfold inv_pi1 at 1.
-    rewrite <- assoc. setoid_rewrite assoc at 2.
-    rewrite s_lpair_eq; [| decorate].
-    rewrite s_unit; [| decorate].
-      cut (forget == (@id unit)).
-      intro H. rewrite H. rewrite ids.
-      unfold permut, lprod. do 3 rewrite assoc.
-        rewrite s_lpair_eq; [| decorate].
-        rewrite <- assoc.
-        apply wtos; [decorate| decorate| ].
-        rewrite w_lpair_eq, idt; [| decorate].
-        unfold inv_pi1. rewrite assoc.
-        rewrite w_lpair_eq; [rewrite idt; reflexivity| decorate]. 
-      (*1st cut*)
-      symmetry. apply s_unit; decorate.
- Qed.
-*)
-
  (** commutation update-update *)
  Lemma CUU: forall {x y: Loc}, forall (n m: Z), x<>y -> 
 	(update y o constant m) o (update x o constant n) === 
@@ -219,36 +173,6 @@ Proof. intros. now rewrite assoc. Qed.
           (*pi2 o f === pi2 o g*)
           setoid_rewrite assoc. setoid_rewrite snd_lpair_eq; [reflexivity| decorate| decorate| decorate| decorate]. 
  Qed.
-
-(*
- Lemma commutation_constant_lookup_update: forall (m: Loc) (p q: Z),
-      (pair (constant q) (lookup m)) o (update m o constant p)
-      ===
-      (pair (constant q) (constant p)) o (update m o constant p).
- Proof.
-      intros. apply (strong_pair3 epure). repeat rewrite assoc. remember wsrc.
-      rewrite pair1;  try decorate. apply ws_sym.
-      rewrite pair1;  try decorate. apply weak_refl.
-      repeat rewrite assoc. remember ssc.
-      rewrite pair2;  try decorate.  
-      specialize(@commutation_lookup_constant m p). intros.
-      setoid_rewrite <- assoc. rewrite H. apply strong_sym.
-      rewrite pair2;  try decorate. apply ss_refl.
- Qed. 
-*)
-
-(**EXCEPTIONS**)
-
-(*
- Lemma propagator_propagates_1: forall X Y (g: term Y X), PPG rw g -> g o (@empty X) === (@empty Y). 
- Proof. intros X Y g H. setoid_rewrite ss_empty; [reflexivity| decorate]. Qed.
-
- Lemma propagator_propagates_2: forall X Y (g: term Y X), PPG rw g -> g === (copair g (@empty Y)) o in1. 
- Proof.
-    intros X Y g H. apply (@swtoss _ _ rw); [edecorate| edecorate| ]. apply swsym.
-    apply (@sw_lcopair_eq _ _ _ rw); edecorate.
- Qed.
-*)
 
  (** annihilation tag-untag *)
  Lemma ATU: forall e: EName, (tag e) o (untag e) === (@id Empty_set).

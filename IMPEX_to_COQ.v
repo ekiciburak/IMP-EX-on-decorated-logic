@@ -104,6 +104,12 @@ Fixpoint beval (st : state) (e : bExp) : bool :=
     | THROW     : EName -> Cmd
     | TRY_CATCH : EName -> Cmd  -> Cmd -> Cmd.
 
+Fixpoint doesNotThrow (c: Cmd): Prop :=
+  match c with
+    | THROW _ => False
+    | _       => True
+  end.
+
 Definition Uupdate (st : state) (X: Loc) (n : Z): state :=
   fun X' => if Zeq_bool (loc X) (loc X') then n else st X'.
 
@@ -162,6 +168,11 @@ Proof. Admitted.
  Notation " '-~' x"                               := (neg x) (at level 60). 
  Notation "'{{' c '}}'"                           := (dCmd c) (at level 62).
  Notation "'``' c '``'"                           := (daExp c) (at level 62).
+
+Compute (fun x => doesNotThrow ((x ::= (aconst 2) ;;
+	  WHILE ((var x) << (aconst 11))
+	    DO (x ::= ((var x) +++ (aconst 4)))
+	  ENDWHILE))).
 
 Lemma lm2: forall (x: Loc),
 	let c1 := (x ::= (aconst 2) ;;

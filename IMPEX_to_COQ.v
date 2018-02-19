@@ -160,7 +160,6 @@ Inductive ceval : Cmd -> state -> state -> Prop :=
  Notation "'WHILE' b 'DO' c 'ENDWHILE'"           := (while b c) (at level 60).
  Notation "'THROW' en"                            := (THROW en) (at level 60).
  Notation "'TRY' s0 'CATCH' e '=>' s1"            := (TRY_CATCH e s0 s1) (at level 60).
-
  Notation " x '+++' y"                            := (plus x y)(at level 60).
  Notation " x '---' y"                            := (subtr x y) (at level 60).
  Notation " x '***' y"                            := (mult x y) (at level 59).

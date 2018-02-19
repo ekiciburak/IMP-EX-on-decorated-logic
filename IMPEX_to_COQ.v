@@ -26,8 +26,9 @@ Module Make(Import M: Memory.T).
     | var   : Loc -> aExp
     | plus  : aExp -> aExp -> aExp
     | subtr : aExp -> aExp -> aExp
-    | mult  : aExp -> aExp -> aExp
-with bExp : Type :=
+    | mult  : aExp -> aExp -> aExp.
+
+ Inductive bExp : Type :=
     | bconst: bool -> bExp
     | ttrue : bExp
     | ffalse: bExp
@@ -110,6 +111,13 @@ Fixpoint doesNotThrow (c: Cmd): Prop :=
     | _       => True
   end.
 
+Fixpoint doesNotThrowTC (c: Cmd): Prop :=
+  match c with
+    | THROW _ => False
+    | TRY_CATCH _ _ _ => False
+    | _       => True
+  end.
+
 Definition Uupdate (st : state) (X: Loc) (n : Z): state :=
   fun X' => if Zeq_bool (loc X) (loc X') then n else st X'.
 
@@ -142,9 +150,8 @@ Inductive ceval : Cmd -> state -> state -> Prop :=
     | TRY_CATCH e c1 c2 => (try_catch e (dCmd c1) (dCmd c2))
   end.
 
-Theorem equiv: forall c1 c2 st st', (dCmd c1 === dCmd c2) -> ceval c1 st st' -> ceval c2 st st'.
-Proof. Admitted.
-       
+ Theorem equiv: forall c1 c2 st st', (dCmd c1 === dCmd c2) -> ceval c1 st st' -> ceval c2 st st'.
+ Proof. Admitted.
 
  Notation "j '::=' e0"                            := (assign j e0) (at level 60).
  Notation "c1 ';;' c2"                            := (sequence c1 c2) (at level 60).
@@ -168,11 +175,6 @@ Proof. Admitted.
  Notation " '-~' x"                               := (neg x) (at level 60). 
  Notation "'{{' c '}}'"                           := (dCmd c) (at level 62).
  Notation "'``' c '``'"                           := (daExp c) (at level 62).
-
-Compute (fun x => doesNotThrow ((x ::= (aconst 2) ;;
-	  WHILE ((var x) << (aconst 11))
-	    DO (x ::= ((var x) +++ (aconst 4)))
-	  ENDWHILE))).
 
 Lemma lm2: forall (x: Loc),
 	let c1 := (x ::= (aconst 2) ;;

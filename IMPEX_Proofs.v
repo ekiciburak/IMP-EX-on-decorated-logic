@@ -186,4 +186,39 @@ Module Make(Import M: Memory.T).
     easy. decorate. easy.
  Qed.
 
+Lemma lemma4: forall (x: Loc), forall (e: EName),
+       {{TRY(x ::= (aconst 10) ;; (THROW e))
+         CATCH e => (x ::= (aconst 20))}}
+         ===
+       {{x ::= (aconst 20)}}.
+Proof. intros.
+       cbn. unfold try_catch, throw.
+       rewrite TRY1; try edecorate.
+       now rewrite IUU.
+Qed.
+
+
+Lemma lemma5: forall (x: Loc), forall (e f: EName),
+       {{TRY(x ::= (aconst 10) ;; (THROW e))
+         CATCH f => (x ::= (aconst 20))}}
+         ==~
+       {{x ::= (aconst 10)}}.
+Proof. intros.
+       cbn. unfold try_catch, throw.
+       rewrite <- sw_downcast.
+       rewrite <- assoc.
+       do 3 setoid_rewrite assoc at 2.
+       assert ((in1 o empty ()) === in2).
+       { apply (@swtoss _ _ pure); try decorate.
+         apply sw_empty.
+       }
+       rewrite H.
+       do 3 rewrite assoc.
+       rewrite (@ss_lcopair_eq _ _ _ pure); try decorate.
+       rewrite <- assoc.
+       do 2 setoid_rewrite <- assoc.
+Admitted.
+
+
+
 End Make.

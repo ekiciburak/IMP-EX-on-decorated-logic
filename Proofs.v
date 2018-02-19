@@ -206,7 +206,7 @@ Qed.
         rewrite ids. reflexivity.
       (*1st cut*)
       setoid_rewrite ss_empty; [reflexivity| edecorate| edecorate].
-     
+
      destruct(Exc_dec r t). rewrite e. setoid_rewrite <- assoc. rewrite (@eax2 t s); [| auto].
        setoid_rewrite <- assoc. setoid_rewrite assoc at 2.
         cut (in2 o (@empty unit) === in1).

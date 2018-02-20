@@ -103,7 +103,7 @@ Module Make(Import M: Memory.T).
  Lemma lemma3: forall (x y: Loc), forall (e: EName), x <> y ->
        {{x ::= (aconst 1) ;;
          (y ::= (aconst 20)) ;;
-         TRY(WHILE (ttrue)
+         TRY(WHILE (bconst true)
                DO(IFB ((var x) <<= (aconst 0))
                     THEN (THROW e)
                   ELSE(x ::= ((var x) +++ (aconst (-1))))

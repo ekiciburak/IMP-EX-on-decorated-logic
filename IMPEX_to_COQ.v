@@ -30,8 +30,6 @@ Module Make(Import M: Memory.T).
 
  Inductive bExp : Type :=
     | bconst: bool -> bExp
-    | ttrue : bExp
-    | ffalse: bExp
     | eq    : aExp -> aExp -> bExp
     | neq   : aExp -> aExp -> bExp
     | gt    : aExp -> aExp -> bExp
@@ -67,8 +65,6 @@ Fixpoint aeval (st : state) (e : aExp) : Z :=
  Fixpoint dbExp (e: bExp): term bool unit :=
   match e with
     | bconst n      => constant n
-    | ttrue         => constant true
-    | ffalse        => constant false
     | eq a1 a2      => tpure chkeq o pair (daExp a1) (daExp a2)
     | neq a1 a2     => tpure chkneq o pair (daExp a1) (daExp a2)
     | gt a1 a2      => tpure chkgt o pair (daExp a1) (daExp a2)
@@ -83,8 +79,6 @@ Fixpoint aeval (st : state) (e : aExp) : Z :=
 Fixpoint beval (st : state) (e : bExp) : bool :=
   match e with
     | bconst n   => n
-    | ttrue      => true
-    | ffalse     => false
     | eq a1 a2   => Zeq_bool (aeval st a1) (aeval st a2)
     | neq a1 a2  => negb (Zeq_bool (aeval st a1) (aeval st a2))
     | gt a1 a2   => Zgt_bool (aeval st a1) (aeval st a2)

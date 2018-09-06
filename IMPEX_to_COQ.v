@@ -9,8 +9,8 @@
 
 Require Import Relations Morphisms.
 Require Import Program.
-Require Top.Memory Top.Terms Top.Decorations Top.Axioms Top.Derived_co_Pairs
-        Top.Derived_co_Products Top.Proofs Top.Functions.
+Require Memory Terms Decorations Axioms Derived_co_Pairs
+        Derived_co_Products Proofs Functions.
 Set Implicit Arguments.
 Require Import ZArith.
 Open Scope Z_scope.

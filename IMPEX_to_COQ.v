@@ -29,24 +29,24 @@ Module Make(Import M: Memory.T).
     | mult  : aExp -> aExp -> aExp.
 
  Inductive bExp : Type :=
-    | bconst: bool -> bExp
-    | eq    : aExp -> aExp -> bExp
-    | neq   : aExp -> aExp -> bExp
-    | gt    : aExp -> aExp -> bExp
-    | lt    : aExp -> aExp -> bExp
-    | ge    : aExp -> aExp -> bExp
-    | le    : aExp -> aExp -> bExp
-    | and   : bExp -> bExp -> bExp
-    | or    : bExp -> bExp -> bExp
-    | neg   : bExp -> bExp.
+    | bconst : bool -> bExp
+    | eq     : aExp -> aExp -> bExp
+    | neq    : aExp -> aExp -> bExp
+    | gt     : aExp -> aExp -> bExp
+    | lt     : aExp -> aExp -> bExp
+    | ge     : aExp -> aExp -> bExp
+    | le     : aExp -> aExp -> bExp
+    | and    : bExp -> bExp -> bExp
+    | or     : bExp -> bExp -> bExp
+    | neg    : bExp -> bExp.
 
  Fixpoint daExp (e: aExp): term Z unit :=
   match e with
-    | aconst n      => constant n
-    | var x         => lookup x
-    | plus a1 a2    => tpure add o pair (daExp a1) (daExp a2)
-    | subtr a1 a2   => tpure subt o pair (daExp a1) (daExp a2)
-    | mult a1 a2    => tpure mlt o pair (daExp a1) (daExp a2)
+    | aconst n    => constant n
+    | var x       => lookup x
+    | plus a1 a2  => tpure add o pair (daExp a1) (daExp a2)
+    | subtr a1 a2 => tpure subt o pair (daExp a1) (daExp a2)
+    | mult a1 a2  => tpure mlt o pair (daExp a1) (daExp a2)
   end.
 
 Definition state := Loc -> Z.
@@ -64,21 +64,21 @@ Fixpoint aeval (st : state) (e : aExp) : Z :=
 
  Fixpoint dbExp (e: bExp): term bool unit :=
   match e with
-    | bconst n      => constant n
-    | eq a1 a2      => tpure chkeq o pair (daExp a1) (daExp a2)
-    | neq a1 a2     => tpure chkneq o pair (daExp a1) (daExp a2)
-    | gt a1 a2      => tpure chkgt o pair (daExp a1) (daExp a2)
-    | lt a1 a2      => tpure chklt o pair (daExp a1) (daExp a2)
-    | ge a1 a2      => tpure chkge o pair (daExp a1) (daExp a2)
-    | le a1 a2      => tpure chkle o pair (daExp a1) (daExp a2)
-    | and b1 b2     => tpure andB o pair (dbExp b1) (dbExp b2)
-    | or b1 b2      => tpure orB o pair (dbExp b1) (dbExp b2)
-    | neg b         => tpure notB o (dbExp b)
+    | bconst b  => constant b
+    | eq a1 a2  => tpure chkeq o pair (daExp a1) (daExp a2)
+    | neq a1 a2 => tpure chkneq o pair (daExp a1) (daExp a2)
+    | gt a1 a2  => tpure chkgt o pair (daExp a1) (daExp a2)
+    | lt a1 a2  => tpure chklt o pair (daExp a1) (daExp a2)
+    | ge a1 a2  => tpure chkge o pair (daExp a1) (daExp a2)
+    | le a1 a2  => tpure chkle o pair (daExp a1) (daExp a2)
+    | and b1 b2 => tpure andB o pair (dbExp b1) (dbExp b2)
+    | or b1 b2  => tpure orB o pair (dbExp b1) (dbExp b2)
+    | neg b     => tpure notB o (dbExp b)
   end.
 
 Fixpoint beval (st : state) (e : bExp) : bool :=
   match e with
-    | bconst n   => n
+    | bconst b   => b  
     | eq a1 a2   => Zeq_bool (aeval st a1) (aeval st a2)
     | neq a1 a2  => negb (Zeq_bool (aeval st a1) (aeval st a2))
     | gt a1 a2   => Zgt_bool (aeval st a1) (aeval st a2)

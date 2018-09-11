@@ -24,7 +24,7 @@ Module Make(Import M: Memory.T).
  Inductive is   : ((kind * ekind)%type) -> forall X Y, term X Y -> Prop :=
   | is_tpure    : forall X Y (f: X -> Y), is (pure, epure) (@tpure X Y f)
   | is_comp     : forall k X Y Z (f: term X Y) (g: term Y Z), is k f -> is k g -> is k (f o g)
-  | is_pair     : forall X Y Z (f: term X Z) (g: term Y Z), is (ro, epure) f -> is (ro, epure) g -> is (ro, epure) (pair f g)
+  | is_pair     : forall k1 k2 X Y Z (f: term X Z) (g: term Y Z), is (ro,  k2) f -> is (k1, k2) f -> is (k1, k2) g -> is (k1, k2) (pair f g)    (* FIXED *)
   | is_copair   : forall k1 k2 X Y Z (f: term Z X) (g: term Z Y), is (k1, ppg) f -> is (k1, k2) f -> is (k1, k2) g -> is (k1, k2) (copair f g)  (* FIXED *)
   | is_downcast : forall X Y (f: term X Y), is (pure, ppg) (@downcast X Y f)	
   | is_lookup   : forall i, is (ro, epure) (lookup i)   
@@ -43,6 +43,7 @@ Module Make(Import M: Memory.T).
                             ||
 		                 (apply is_tpure    || apply is_lookup || apply is_update || 
 	                          apply is_downcast || apply is_tag    || apply is_untag  || assumption)
+
 			    || 
                                  (apply is_pure_ro)
 			    || 
@@ -57,7 +58,7 @@ Module Make(Import M: Memory.T).
                           repeat (apply is_comp || apply is_pair || apply is_copair)
                             ||
 		                 (apply is_tpure    || apply is_lookup || apply is_update || 
-	                          apply is_downcast || apply is_tag    || apply is_untag  || assumption)        
+	                          apply is_downcast || apply is_tag    || apply is_untag  || assumption)
 			    ||   
                                  (apply is_pure_ppg)
 			    ||   

@@ -22,12 +22,12 @@ Module Make(Import M: Memory.T).
 
  Lemma lemma1: forall (b: bool) (f g: Cmd), 
       (EPURE rw (dCmd f)) -> (EPURE rw (dCmd g)) -> 
-      {{IFB bconst b 
-          THEN (IFB bconst b THEN f ELSE g ENDIF) 
+      {{IFB (bconst b) 
+          THEN (IFB (bconst b) THEN f ELSE g ENDIF) 
         ELSE g 
         ENDIF}}
       ===
-      {{IFB bconst b 
+      {{IFB (bconst b)
           THEN f 
         ELSE g 
         ENDIF}}.

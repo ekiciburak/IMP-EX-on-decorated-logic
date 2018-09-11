@@ -9,7 +9,7 @@
 
 Require Import Relations Morphisms.
 Require Import Program.
-Require Memory.
+Require Import Memory.
 Set Implicit Arguments.
 Require Import ZArith.
 Open Scope Z_scope.

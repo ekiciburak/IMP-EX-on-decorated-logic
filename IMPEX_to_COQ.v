@@ -99,18 +99,53 @@ Fixpoint beval (st : state) (e : bExp) : bool :=
     | THROW     : EName -> Cmd
     | TRY_CATCH : EName -> Cmd  -> Cmd -> Cmd.
 
-Fixpoint doesNotThrow (c: Cmd): Prop :=
+Fixpoint doesNotThrow (c: Cmd): bool :=
   match c with
-    | THROW _ => False
-    | _       => True
+    | skip     => true
+    | sequence c1 c2 => doesNotThrow c1 && doesNotThrow c2
+    | assign x a => true
+    | cond b c1 c2 => match b with
+                        | bconst n => if Bool.eqb n true then doesNotThrow c1 else doesNotThrow c2
+                        | _        => false
+                      end
+    | while b c => match b with
+                        | bconst n => if Bool.eqb n true then doesNotThrow c else false
+                        | _        => false
+                      end
+    | THROW _  => false
+    | TRY_CATCH _ c1 c2 => doesNotThrow c1
   end.
 
-Fixpoint doesNotThrowTC (c: Cmd): Prop :=
+(*
+Parameters e e': EName.
+Compute doesNotThrow (TRY_CATCH e (sequence skip (THROW e)) skip).
+Compute doesNotThrow (TRY_CATCH e' (TRY_CATCH e (THROW e) (skip)) (skip)).
+*)
+
+Fixpoint doesNotTryCatch (c: Cmd): bool :=
   match c with
-    | THROW _ => False
-    | TRY_CATCH _ _ _ => False
-    | _       => True
+    | skip     => true
+    | sequence c1 c2 => doesNotTryCatch c1 && doesNotTryCatch c2
+    | assign x a => true
+    | cond b c1 c2 => match b with
+                        | bconst n => if Bool.eqb n true then doesNotTryCatch c1 else doesNotTryCatch c2
+                        | _        => false
+                      end
+    | while b c => match b with
+                        | bconst n => if Bool.eqb n true then doesNotTryCatch c else false
+                        | _        => false
+                      end
+    | THROW _  => true
+    | TRY_CATCH _ c1 c2 => false
   end.
+
+(*
+Parameters e e': EName.
+Compute doesNotTryCatch (sequence skip (THROW e)).
+Compute doesNotTryCatch (TRY_CATCH e' (TRY_CATCH e (THROW e) (skip)) (skip)).
+*)
+
+Definition doesNotThrowTC (c: Cmd): bool := doesNotThrow c && doesNotTryCatch c.
 
 Definition Uupdate (st : state) (X: Loc) (n : Z): state :=
   fun X' => if Zeq_bool (loc X) (loc X') then n else st X'.

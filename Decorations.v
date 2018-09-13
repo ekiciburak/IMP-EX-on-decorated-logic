@@ -69,6 +69,53 @@ Module Make(Import M: Memory.T).
 		                 (apply is_ro_rw) 
                         ].
 
+Definition dmax (k1 k2: kind): kind :=
+  match k1, k2 with
+    | pure, pure => pure
+    | pure, ro  => ro
+    | pure, rw  => rw
+    | ro, pure  => ro
+    | rw, pure => rw
+    | ro, ro   => ro
+    | ro, rw   => rw
+    | rw, ro   => rw
+    | rw, rw   => rw
+  end.
+
+Definition edmax (k1 k2: ekind): ekind :=
+  match k1, k2 with
+    | epure, epure => epure
+    | epure, ppg  => ppg
+    | epure, ctc  => ctc
+    | ppg, epure  => ppg
+    | ctc, epure => ctc
+    | ppg, ppg   => ppg
+    | ppg, ctc   => ctc
+    | ctc, ppg   => ctc
+    | ctc, ctc   => ctc
+  end.
+
+
+Lemma _is_comp: forall k1 k2 k3 k4 X Y Z (f: term X Y) (g: term Y Z), is (k1, k3) f -> is (k2, k4) g -> is ((dmax k1 k2), (edmax k3 k4)) (f o g).
+Proof. intros.
+       case_eq k1; case_eq k2; case_eq k3; case_eq k4; cbn; intros; subst; try edecorate; try decorate;
+       apply is_comp; try (decorate || edecorate); apply is_ro_rw; apply is_ppg_ctc; easy.
+Qed.
+
+Lemma _is_pair: forall k1 k2 k3 k4 X Y Z (f: term X Z) (g: term Y Z), 
+is (ro,  k4) f -> is (k1, k3) f -> is (k2, k4) g -> is ((dmax k1 k2), (edmax k3 k4)) (pair f g).
+Proof. intros.
+       case_eq k1; case_eq k2; case_eq k3; case_eq k4; cbn; intros; subst; try edecorate; try decorate;
+       apply is_pair; try (decorate || edecorate); apply is_ro_rw; apply is_ppg_ctc; easy.
+Qed.
+
+Lemma _is_copair: forall k1 k2 k3 k4 X Y Z (f: term Z X) (g: term Z Y), 
+is (k1,  ppg) f -> is (k1, k3) f -> is (k2, k4) g -> is ((dmax k1 k2), (edmax k3 k4)) (copair f g).
+Proof. intros.
+       case_eq k1; case_eq k2; case_eq k3; case_eq k4; cbn; intros; subst; try edecorate; try decorate;
+       apply is_copair; try (decorate || edecorate); apply is_ro_rw; apply is_ppg_ctc; easy.
+Qed.
+
  Class PURE {A B: Type} (k: ekind) (f: term A B) := ispr : is (pure, k) f.
  Hint Extern 0 (PURE _)        => decorate : typeclass_instances.
 
